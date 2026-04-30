@@ -1,0 +1,28 @@
+{
+  "name": "quickinsights",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "devDependencies": {
+    "typescript": "~6.0.2",
+    "vite": "^8.0.10"
+  },
+  "dependencies": {
+    "docx": "^9.6.1",
+    "file-saver": "^2.0.5",
+    "firebase": "^12.12.1",
+    "framer-motion": "^12.38.0",
+    "html2canvas": "^1.4.1",
+    "jspdf": "^4.2.1",
+    "lucide-react": "^1.11.0",
+    "papaparse": "^5.5.3",
+    "pptxgenjs": "^4.0.1",
+    "react-grid-layout": "^2.2.3",
+    "recharts": "^3.8.1"
+  }
+}
