@@ -110,7 +110,7 @@ export default function AddVisualModal({ isOpen, onClose, onAdd, columnMeta, row
           {/* Chart Type Grid */}
           <div style={{ marginBottom: '1.25rem' }}>
             <label style={labelStyle}>Chart Type</label>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5,1fr)', gap: '0.5rem' }}>
+            <div className="chart-type-selector-grid">
               {CHART_TYPES.map(ct => (
                 <button key={ct.value} onClick={() => setChartType(ct.value)} style={{
                   padding: '0.75rem 0.5rem', borderRadius: '10px', cursor: 'pointer',
@@ -169,8 +169,7 @@ export default function AddVisualModal({ isOpen, onClose, onAdd, columnMeta, row
                     : `${tableColumns.length} column${tableColumns.length > 1 ? 's' : ''} selected`}
                 </div>
               </div>
-
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
+              <div className="modal-form-row">
                 <div>
                   <label style={labelStyle}>Row Limit</label>
                   <select value={filterN} onChange={e => setFilterN(e.target.value)} style={fieldStyle}>
@@ -205,7 +204,7 @@ export default function AddVisualModal({ isOpen, onClose, onAdd, columnMeta, row
               </div>
 
               {/* Aggregation + Filter + Title */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1.5fr', gap: '0.75rem' }}>
+              <div className="modal-form-row-triple">
                 <div>
                   <label style={labelStyle}>Aggregation</label>
                   <select value={aggMethod} onChange={e => setAggMethod(e.target.value)} style={fieldStyle}>

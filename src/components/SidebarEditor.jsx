@@ -128,29 +128,61 @@ const SidebarEditor = ({ editingItem, onSave, onCancel, onDelete, columnMeta, he
 
       <div className="editor-form-grid">
         {isMetric && (
-          <div className="editor-field full-width">
-            <label className="editor-label"><Type size={12} /> Display Title</label>
-            <input 
-              className="premium-input-field"
-              value={localConfig.title}
-              onChange={(e) => handleChange('title', e.target.value)}
-              placeholder="e.g. Total Revenue"
-            />
-          </div>
+          <>
+            <div className="editor-field full-width">
+              <label className="editor-label"><Type size={12} /> Display Title</label>
+              <input 
+                className="premium-input-field"
+                value={localConfig.title || ''}
+                onChange={(e) => handleChange('title', e.target.value)}
+                placeholder="e.g. Total Revenue"
+              />
+            </div>
+
+            <div className="editor-field full-width">
+              <label className="editor-label"><Database size={12} /> Metric Source</label>
+              <select 
+                className="premium-select-field"
+                value={localConfig.dataKey || ''}
+                onChange={(e) => handleChange('dataKey', e.target.value)}
+              >
+                {numericCols.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+              </select>
+            </div>
+
+            <div className="editor-field full-width">
+              <label className="editor-label"><Layers size={12} /> Aggregation</label>
+              <select 
+                className="premium-select-field" 
+                value={localConfig.aggMethod || 'sum'} 
+                onChange={(e) => handleChange('aggMethod', e.target.value)}
+              >
+                <option value="sum">Sum</option>
+                <option value="avg">Average</option>
+                <option value="count">Count</option>
+                <option value="min">Min</option>
+                <option value="max">Max</option>
+                <option value="custom">Formula</option>
+              </select>
+            </div>
+
+            {localConfig.aggMethod === 'custom' && (
+              <div className="editor-field full-width">
+                <label className="editor-label">Custom Formula</label>
+                <input 
+                  type="text" 
+                  className="premium-input-field" 
+                  value={localConfig.customFormula || ''}
+                  onChange={(e) => handleChange('customFormula', e.target.value)}
+                  style={{ fontFamily: 'monospace' }}
+                  placeholder="e.g. SUM(Revenue) / COUNT(Product)"
+                />
+              </div>
+            )}
+          </>
         )}
 
-        {!isTable && (
-          <div className="editor-field full-width">
-            <label className="editor-label"><Database size={12} /> {isChart ? 'Metric (Y-Axis)' : 'Metric Source'}</label>
-            <select 
-              className="premium-select-field"
-              value={localConfig.dataKey}
-              onChange={(e) => handleChange('dataKey', e.target.value)}
-            >
-              {numericCols.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
-            </select>
-          </div>
-        )}
+
 
         {isChart && !isTable && (
           <>

@@ -385,6 +385,7 @@ export default function App() {
   const [appError,        setAppError]        = useState(null);
   const [isExporting,     setIsExporting]     = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Grid layout state
   const [gridLayouts, setGridLayouts] = useState([]);
@@ -578,7 +579,7 @@ export default function App() {
           <section className="auth-section">
             <div className="login-card-cute">
               <div className="login-cat-visual">
-                <img src="/logo.png" alt="Miyamo Logo" className="cute-mascot-img" />
+                <img src="/New miyamo app logo.png" alt="Miyamo Logo" className="cute-mascot-img" />
               </div>
               <div className="login-header-cute">
                 <h2>Welcome to Miyamo</h2>
@@ -622,8 +623,16 @@ export default function App() {
 
       {/* ── Navbar ── */}
       <header className="top-navbar">
-        <a href="/" className="logo-link">
-          <img src="/logo.png" alt="Miyamo Logo" className="miyamo-logo" onError={(e) => { 
+        <div className="flex items-center gap-4">
+          <button 
+            className="mobile-menu-toggle" 
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle Menu"
+          >
+            {isMobileMenuOpen ? <X size={24} /> : <Layout size={24} />}
+          </button>
+          <a href="/" className="logo-link">
+            <img src="/logo.png" alt="Miyamo Logo" className="miyamo-logo" onError={(e) => { 
             e.target.style.display = 'none'; 
             const fallback = document.getElementById('fallback-logo');
             if (fallback) fallback.style.display = 'flex';
@@ -634,6 +643,7 @@ export default function App() {
           </div>
           <div className="app-subtitle text-xs text-muted desktop-only" style={{ marginLeft: '1rem' }}>Data Insights Engine</div>
         </a>
+        </div>
         <div className="flex items-center gap-6">
           <div className="status-pill pill-green desktop-only"><Shield size={14} /> Encrypted</div>
           
@@ -656,7 +666,7 @@ export default function App() {
             </div>
           )}
 
-          <button className="nav-action-btn theme-btn" title="Toggle Theme" onClick={() => setDark(!dark)}>
+          <button className="nav-action-btn theme-btn" title="Toggle Theme" onClick={() => { setDark(!dark); setIsMobileMenuOpen(false); }}>
             {dark ? <Sun size={18} /> : <Moon size={18} />}
           </button>
         </div>
@@ -666,7 +676,7 @@ export default function App() {
       <main className="app-main">
 
         {/* Left Sidebar */}
-        <aside className="sidebar-left">
+        <aside className={`sidebar-left ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
           <section className="card-premium">
             <div className="section-label"><Database size={12} /> Paste your data</div>
             <div className="flex justify-between mb-4">
@@ -757,8 +767,8 @@ export default function App() {
                     breakpoints={{ lg: 900, md: 600, sm: 0 }}
                     cols={{ lg: 12, md: 8, sm: 4 }}
                     rowHeight={60}
-                    margin={[16, 16]}
-                    containerPadding={[0, 0]}
+                    margin={[12, 12]}
+                    containerPadding={[8, 8]}
                     isDraggable={isEditMode}
                     isResizable={isEditMode}
                     draggableHandle=".draggable-header"

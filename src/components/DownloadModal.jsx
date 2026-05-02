@@ -371,6 +371,13 @@ const DownloadModal = ({ isOpen, onClose, reportRef, title, setIsExporting }) =>
           box-shadow: 0 30px 60px rgba(0, 0, 0, 0.06);
         }
 
+        @media (max-width: 640px) {
+          .support-gateway-card {
+            padding: 1.5rem 1.25rem;
+            border-radius: 24px;
+          }
+        }
+
         .social-proof-pill {
           display: inline-flex;
           align-items: center;
@@ -393,6 +400,12 @@ const DownloadModal = ({ isOpen, onClose, reportRef, title, setIsExporting }) =>
           margin: 1.5rem 0;
         }
 
+        @media (max-width: 480px) {
+          .micro-donation-grid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
         .tier-btn {
           display: flex;
           flex-direction: column;
@@ -403,6 +416,7 @@ const DownloadModal = ({ isOpen, onClose, reportRef, title, setIsExporting }) =>
           padding: 1rem 0.5rem;
           border-radius: 20px;
           cursor: pointer;
+          min-height: 80px;
           transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
 
@@ -435,6 +449,14 @@ const DownloadModal = ({ isOpen, onClose, reportRef, title, setIsExporting }) =>
           border-radius: 24px;
           border: 1px solid #f1f5f9;
           margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 480px) {
+          .qr-action-zone {
+            flex-direction: column;
+            text-align: center;
+            gap: 1rem;
+          }
         }
 
         .qr-visual-wrap {

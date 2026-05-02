@@ -155,47 +155,76 @@ export function AreaChartPanel({ config }) {
 // ── Pie ───────────────────────────────────────────────────────────────────────
 
 export function PieChartPanel({ config }) {
+  const [zoom, setZoom] = useState(1);
   const hasLabels = config.showLabels;
-  const outerRadius = hasLabels ? 55 : 70;
-  const innerRadius = hasLabels ? 35 : 45;
+  const baseOuter = hasLabels ? 55 : 70;
+  const baseInner = hasLabels ? 35 : 45;
+  
+  const outerRadius = baseOuter * zoom;
+  const innerRadius = baseInner * zoom;
+
   const legendPayload = config.data.map((d, i) => ({
     value: d.name,
     type: 'circle',
     color: PALETTE[i % PALETTE.length]
   }));
 
+  const handleZoom = (delta) => {
+    setZoom(prev => Math.min(Math.max(prev + delta, 0.5), 2.5));
+  };
+
   return (
     <ChartWrapper>
-      <ResponsiveContainer width="100%" height="100%">
-        <PieChart>
-          <Pie
-            data={config.data}
-            cx="50%"
-            cy="45%"
-            innerRadius={innerRadius}
-            outerRadius={outerRadius}
-            dataKey="value"
-            labelLine={hasLabels}
-            label={hasLabels ? ({ name, percent, x, y, cx, cy, fill }) => {
-              const truncatedName = name.length > 8 ? name.slice(0, 8) + '...' : name;
-              return (
-                <text 
-                  x={x} y={y} fill={fill} 
-                  textAnchor={x > cx ? 'start' : 'end'} 
-                  dominantBaseline="central" 
-                  style={{ fontSize: 8, fontWeight: 700, fontFamily: 'Inter' }}
-                >
-                  {`${truncatedName} ${(percent * 100).toFixed(0)}%`}
-                </text>
-              );
-            } : false}
-          >
-            {config.data.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} />)}
-          </Pie>
-          <Tooltip contentStyle={TOOLTIP_STYLE} />
-          {config.showLegend && <Legend content={(props) => <CustomLegend {...props} payload={legendPayload} />} verticalAlign="bottom" height={30} />}
-        </PieChart>
-      </ResponsiveContainer>
+      <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+        {/* Zoom Controls */}
+        <div style={{ 
+          position: 'absolute', top: 5, right: 5, zIndex: 10, 
+          display: 'flex', gap: '4px', background: 'rgba(255,255,255,0.8)', 
+          padding: '4px', borderRadius: '8px', border: '1px solid #e2e8f0' 
+        }}>
+          <button 
+            onClick={() => handleZoom(0.1)} 
+            style={{ padding: '2px 6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', background: '#fff' }}
+            title="Zoom In"
+          >+</button>
+          <button 
+            onClick={() => handleZoom(-0.1)} 
+            style={{ padding: '2px 6px', fontSize: '12px', fontWeight: 'bold', cursor: 'pointer', border: '1px solid #ddd', borderRadius: '4px', background: '#fff' }}
+            title="Zoom Out"
+          >-</button>
+        </div>
+
+        <ResponsiveContainer width="100%" height="100%">
+          <PieChart>
+            <Pie
+              data={config.data}
+              cx="50%"
+              cy="45%"
+              innerRadius={innerRadius}
+              outerRadius={outerRadius}
+              dataKey="value"
+              labelLine={hasLabels}
+              label={hasLabels ? ({ name, percent, x, y, cx, cy, fill }) => {
+                const truncatedName = name.length > 8 ? name.slice(0, 8) + '...' : name;
+                return (
+                  <text 
+                    x={x} y={y} fill={fill} 
+                    textAnchor={x > cx ? 'start' : 'end'} 
+                    dominantBaseline="central" 
+                    style={{ fontSize: 8, fontWeight: 700, fontFamily: 'Inter' }}
+                  >
+                    {`${truncatedName} ${(percent * 100).toFixed(0)}%`}
+                  </text>
+                );
+              } : false}
+            >
+              {config.data.map((_, i) => <Cell key={i} fill={PALETTE[i % PALETTE.length]} />)}
+            </Pie>
+            <Tooltip contentStyle={TOOLTIP_STYLE} />
+            {config.showLegend && <Legend content={(props) => <CustomLegend {...props} payload={legendPayload} />} verticalAlign="bottom" height={30} />}
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
     </ChartWrapper>
   );
 }
