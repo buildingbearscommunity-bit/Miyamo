@@ -22,6 +22,21 @@ export default {
       });
     }
 
+    // Handle robots.txt specifically
+    if (url.pathname === "/robots.txt") {
+      const robotsText = `User-agent: *
+Allow: /
+
+Sitemap: https://www.miyamoapp.com/sitemap.xml`;
+
+      return new Response(robotsText, {
+        headers: {
+          "Content-Type": "text/plain",
+          "Cache-Control": "public, max-age=3600"
+        }
+      });
+    }
+
     // Fallback to static assets for all other routes
     return env.ASSETS.fetch(request);
   }
