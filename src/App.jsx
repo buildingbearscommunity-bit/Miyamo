@@ -4,7 +4,7 @@ import { Responsive, WidthProvider } from 'react-grid-layout/legacy';
 import {
   Shield, Edit3, Download, X, Moon, Sun, Clock,
   Layout, Database, Table as TableIcon, Plus, RotateCcw, Copy, GripVertical, FileSpreadsheet, Image as ImageIcon, FileText,
-  Zap, ShieldCheck, Ghost, Trash2, Lock, Star, Send
+  Zap, ShieldCheck, Ghost, Trash2, Lock, Star, Send, Maximize, Minimize
 } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { saveAs } from 'file-saver';
@@ -385,6 +385,11 @@ export default function App() {
   const [appError,        setAppError]        = useState(null);
   const [isExporting,     setIsExporting]     = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
+  const [isSidebarVisible, setIsSidebarVisible] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [reportWidth, setReportWidth] = useState(1100);
+  const [reportHeight, setReportHeight] = useState(800);
+  const [resizingType, setResizingType] = useState(null); // 'width', 'height', 'both'
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Grid layout state
@@ -396,6 +401,56 @@ export default function App() {
 
   const titleInputRef = useRef(null);
   const reportRef     = useRef(null);
+  const reportCardRef = useRef(null);
+
+  const toggleFullscreen = () => {
+    if (!document.fullscreenElement) {
+      reportCardRef.current?.requestFullscreen?.().catch(err => {
+        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+        setIsFullscreen(true);
+      });
+    } else {
+      document.exitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleFsChange = () => {
+      setIsFullscreen(!!document.fullscreenElement);
+    };
+    document.addEventListener('fullscreenchange', handleFsChange);
+    return () => document.removeEventListener('fullscreenchange', handleFsChange);
+  }, []);
+
+  // ── Manual Resizing Logic ──
+  const startResizing = (e, type) => {
+    e.preventDefault();
+    setResizingType(type);
+  };
+
+  useEffect(() => {
+    if (!resizingType) return;
+
+    const onMouseMove = (e) => {
+      if (resizingType === 'width' || resizingType === 'both') {
+        const newWidth = e.clientX - reportCardRef.current.getBoundingClientRect().left;
+        setReportWidth(Math.max(600, newWidth));
+      }
+      if (resizingType === 'height' || resizingType === 'both') {
+        const newHeight = e.clientY - reportCardRef.current.getBoundingClientRect().top;
+        setReportHeight(Math.max(500, newHeight));
+      }
+    };
+
+    const onMouseUp = () => setResizingType(null);
+
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [resizingType]);
 
   useEffect(() => {
     // 1. Listen for auth state changes
@@ -534,12 +589,12 @@ export default function App() {
 
   // Build the layout object for ResponsiveGridLayout
   const currentLayouts = useMemo(() => {
-    // Ensure every item has a layout entry
     const layoutMap = new Map(gridLayouts.map(l => [l.i, l]));
     const allLayouts = items.map((item, idx) => {
       if (layoutMap.has(item.id)) return layoutMap.get(item.id);
       return getNewItemLayout(item, gridLayouts);
     });
+    // Use a single layout for all breakpoints to ensure consistency as requested
     return { lg: allLayouts, md: allLayouts, sm: allLayouts };
   }, [items, gridLayouts]);
 
@@ -633,16 +688,28 @@ export default function App() {
           </button>
           <a href="/" className="logo-link">
             <img src="/logo.png" alt="Miyamo Logo" className="miyamo-logo" onError={(e) => { 
-            e.target.style.display = 'none'; 
-            const fallback = document.getElementById('fallback-logo');
-            if (fallback) fallback.style.display = 'flex';
-          }} />
-          <div id="fallback-logo" style={{ display: 'none', alignItems: 'center', gap: '0.75rem' }}>
-            <div style={{ color: '#8b5cf6', fontSize: '1.2rem' }}>⚡</div>
-            <div className="app-name">Miyamo</div>
+              e.target.style.display = 'none'; 
+              const fallback = document.getElementById('fallback-logo');
+              if (fallback) fallback.style.display = 'flex';
+            }} />
+            <div id="fallback-logo" style={{ display: 'none', alignItems: 'center', gap: '0.75rem' }}>
+              <div style={{ color: '#8b5cf6', fontSize: '1.2rem' }}>⚡</div>
+              <div className="app-name">Miyamo</div>
+            </div>
+            <div className="app-subtitle text-xs text-muted desktop-only" style={{ marginLeft: '1rem' }}>Data Insights Engine</div>
+          </a>
+        </div>
+
+        {/* ── Center Section: Privacy Banner ── */}
+        <div className="nav-center-banner desktop-only">
+          <div className="privacy-pill-premium">
+            <ShieldCheck size={14} className="privacy-pill-icon" />
+            <p>
+              This is your <strong>private workspace</strong>. Your data never leaves your control, 
+              and <strong>nothing is stored</strong>, accessed, or <strong>tracked</strong>.
+            </p>
+            <div className="secure-pulse-dot"></div>
           </div>
-          <div className="app-subtitle text-xs text-muted desktop-only" style={{ marginLeft: '1rem' }}>Data Insights Engine</div>
-        </a>
         </div>
         <div className="flex items-center gap-6">
           <div className="status-pill pill-green desktop-only"><Shield size={14} /> Encrypted</div>
@@ -676,7 +743,7 @@ export default function App() {
       <main className="app-main">
 
         {/* Left Sidebar */}
-        <aside className={`sidebar-left ${isMobileMenuOpen ? 'mobile-open' : ''}`}>
+        <aside className={`sidebar-left ${isMobileMenuOpen ? 'mobile-open' : ''} ${!isSidebarVisible ? 'collapsed' : ''}`}>
           <section className="card-premium">
             <div className="section-label"><Database size={12} /> Paste your data</div>
             <div className="flex justify-between mb-4">
@@ -717,22 +784,54 @@ export default function App() {
           <FeedbackForm />
         </aside>
 
+        {/* Divider with Toggle Button */}
+        <div className="sidebar-divider desktop-only" onClick={() => setIsSidebarVisible(!isSidebarVisible)}>
+          <div className="sidebar-toggle-line" title={isSidebarVisible ? "Hide Panel" : "Show Panel"}>
+            {isSidebarVisible ? <X size={14} /> : <Database size={14} />}
+          </div>
+        </div>
+
         {/* Right Canvas */}
-        <section className="content-right">
-          <div className="report-card">
-            <div className="flex justify-between items-center mb-6">
+        <section className={`content-right ${isFullscreen ? 'fullscreen-active' : ''}`}>
+
+          <div 
+            className={`report-card ${isFullscreen ? 'is-fullscreen' : ''} ${resizingType ? 'is-resizing' : ''}`} 
+            ref={reportCardRef}
+            style={!isFullscreen ? { width: `${reportWidth}px`, height: `${reportHeight}px` } : {}}
+          >
+            {/* Custom Resizer Handles */}
+            {!isFullscreen && (
+              <>
+                <div className="report-resizer-right" onMouseDown={(e) => startResizing(e, 'width')} />
+                <div className="report-resizer-bottom" onMouseDown={(e) => startResizing(e, 'height')} />
+                <div className="report-resizer-corner" onMouseDown={(e) => startResizing(e, 'both')} />
+              </>
+            )}
+
+            <div className="flex justify-between items-center mb-8">
               <h2 className="app-name">Visualisation Report</h2>
-              <div className="flex gap-3">
+              
+              <div className="flex items-center gap-3">
+                {/* Premium Full Screen Button */}
+                <button 
+                  className={`btn-report-action btn-fullscreen-premium ${isFullscreen ? 'is-active' : ''}`}
+                  onClick={toggleFullscreen}
+                  data-tooltip={isFullscreen ? "Exit full screen" : "Expand report to full screen"}
+                >
+                  {isFullscreen ? <Minimize size={16} /> : <Maximize size={16} />}
+                  <span>{isFullscreen ? 'Exit Full Screen' : 'Full Screen'}</span>
+                </button>
+
                 {isEditMode && (
-                  <button className="btn btn-ghost" onClick={() => setIsAddVisualOpen(true)}>
-                    <Plus size={14} /> Add Visual
+                  <button className="btn-report-action btn-ghost" onClick={() => setIsAddVisualOpen(true)}>
+                    <Plus size={16} /> <span>Add Visual</span>
                   </button>
                 )}
-                <button className={`btn btn-ghost ${isEditMode ? 'active-edit' : ''}`} onClick={() => setIsEditMode(!isEditMode)}>
-                  <Edit3 size={14} /> {isEditMode ? 'Done Editing' : 'Edit Report'}
+                <button className={`btn-report-action btn-ghost ${isEditMode ? 'active-edit' : ''}`} onClick={() => setIsEditMode(!isEditMode)}>
+                  <Edit3 size={16} /> <span>{isEditMode ? 'Done Editing' : 'Edit Report'}</span>
                 </button>
-                <button className="btn btn-lavender" onClick={() => setIsDownloadOpen(true)}>
-                  <Download size={14} /> Download
+                <button className="btn-report-action btn-lavender" onClick={() => setIsDownloadOpen(true)}>
+                  <Download size={16} /> <span>Download</span>
                 </button>
               </div>
             </div>
@@ -761,11 +860,12 @@ export default function App() {
                   </div>
 
                   {/* ── Grid Layout for ALL items ── */}
-                  <ResponsiveGridLayout
+                  <Responsive
                     className="layout"
                     layouts={currentLayouts}
-                    breakpoints={{ lg: 900, md: 600, sm: 0 }}
-                    cols={{ lg: 12, md: 8, sm: 4 }}
+                    width={isFullscreen ? window.innerWidth - 60 : reportWidth - 112} // Adjusted for padding: (2.5rem card + 1rem canvas) * 2
+                    breakpoints={{ lg: 0 }} // Disable breakpoints to prevent reflow
+                    cols={{ lg: 12 }}
                     rowHeight={60}
                     margin={[12, 12]}
                     containerPadding={[8, 8]}
@@ -788,7 +888,7 @@ export default function App() {
                         />
                       </div>
                     ))}
-                  </ResponsiveGridLayout>
+                  </Responsive>
                 </>
               )}
             </div>

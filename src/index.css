@@ -73,8 +73,89 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
   align-items: center;
   justify-content: space-between;
   padding: 0.75rem 2.5rem;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 72px;
+}
+
+.nav-center-banner {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 1.5rem;
+}
+
+.privacy-pill-premium {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.4rem 1.25rem;
+  background: rgba(255, 255, 255, 0.5);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 99px;
+  box-shadow: 0 4px 15px rgba(139, 92, 246, 0.05);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  cursor: default;
+  max-width: 580px;
+}
+
+.privacy-pill-premium:hover {
+  background: #fff;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 25px rgba(139, 92, 246, 0.1);
+  border-color: rgba(139, 92, 246, 0.3);
+}
+
+.privacy-pill-premium p {
+  margin: 0;
+  font-size: 0.72rem;
+  color: #475569;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  text-align: center;
+}
+
+.privacy-pill-premium strong {
+  color: var(--primary);
+  font-weight: 700;
+}
+
+.privacy-pill-icon {
+  color: #10b981;
+  flex-shrink: 0;
+}
+
+.secure-pulse-dot {
+  width: 6px;
+  height: 6px;
+  background: #10b981;
+  border-radius: 50%;
+  margin-left: 0.25rem;
+  position: relative;
+  flex-shrink: 0;
+}
+
+.secure-pulse-dot::after {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border: 1px solid #10b981;
+  border-radius: 50%;
+  animation: pulse-secure 2s infinite;
+}
+
+@keyframes pulse-secure {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
 }
 
 .logo-link {
@@ -190,6 +271,65 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
 .content-right {
   flex: 1;
   min-width: 0;
+  padding: 2rem;
+  background: var(--bg-page);
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Keep report centered */
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+/* ── Sidebar Divider & Toggle ── */
+.sidebar-divider {
+  width: 1px;
+  background: var(--border);
+  position: relative;
+  transition: all 0.4s;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.sidebar-divider:hover {
+  background: var(--primary);
+  width: 2px;
+}
+
+.sidebar-toggle-line {
+  position: absolute;
+  top: 100px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 24px;
+  height: 24px;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 100;
+  color: var(--text-dim);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-toggle-line:hover {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+  transform: translate(-50%, -50%) scale(1.1);
+}
+
+.sidebar-left.collapsed {
+  width: 0;
+  padding: 0;
+  margin: 0;
+  opacity: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 /* ── Components ── */
@@ -435,9 +575,212 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
   background: #fff;
   border: 1px solid var(--border);
   border-radius: var(--radius-lg);
-  padding: 2rem;
-  box-shadow: var(--shadow);
-  min-height: 80vh;
+  padding: 2.5rem;
+  box-shadow: var(--shadow-lg);
+  position: relative;
+  min-width: 600px;
+  min-height: 500px;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  margin: 0 auto 4rem;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Report Action Buttons (Unified) ── */
+.btn-report-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 0.6rem 1.2rem;
+  height: 42px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+  border: 1px solid transparent;
+  user-select: none;
+}
+
+.btn-report-action svg {
+  flex-shrink: 0;
+}
+
+.btn-report-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn-report-action:active {
+  transform: translateY(0) scale(0.98);
+}
+
+/* Specific Button Themes */
+.btn-fullscreen-premium {
+  background: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(139, 92, 246, 0.2);
+  color: var(--primary);
+}
+
+.btn-fullscreen-premium.is-active {
+  background: #1e293b;
+  color: #fff;
+}
+
+.btn-ghost {
+  background: #f8fafc;
+  color: var(--text-dim);
+  border: 1px solid var(--border);
+}
+
+.btn-ghost:hover {
+  background: #fff;
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-ghost.active-edit {
+  background: var(--primary-gradient);
+  color: #fff;
+  border-color: transparent;
+}
+
+.btn-lavender {
+  background: var(--primary-gradient);
+  color: #fff;
+  box-shadow: 0 4px 10px rgba(139, 92, 246, 0.3);
+}
+
+.btn-lavender:hover {
+  box-shadow: 0 8px 20px rgba(139, 92, 246, 0.4);
+}
+
+/* Tooltip implementation */
+[data-tooltip] {
+  position: relative;
+}
+
+[data-tooltip]::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  right: 0;
+  transform: translateY(8px);
+  background: #1e293b;
+  color: #fff;
+  padding: 0.5rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.72rem;
+  font-weight: 500;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+  box-shadow: 0 10px 15px rgba(0,0,0,0.2);
+  z-index: 1001;
+}
+
+[data-tooltip]:hover::after {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Position adjustment - No more fixed positioning needed */
+.report-card .flex.justify-between.relative {
+  padding-right: 0; 
+}
+
+@media (max-width: 1200px) {
+  .btn-report-action span {
+    display: none;
+  }
+  .btn-report-action {
+    padding: 0;
+    width: 42px;
+    height: 42px;
+  }
+}
+
+@media (max-width: 640px) {
+  .flex.justify-between.items-center {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+  
+  .btn-report-action {
+    height: 38px;
+    width: 38px;
+  }
+}
+
+/* User resize handles */
+.report-resizer-right {
+  position: absolute;
+  right: -5px;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 10;
+}
+
+.report-resizer-bottom {
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  height: 10px;
+  cursor: row-resize;
+  z-index: 10;
+}
+
+.report-resizer-corner {
+  position: absolute;
+  bottom: -5px;
+  right: -5px;
+  width: 20px;
+  height: 20px;
+  cursor: nwse-resize;
+  z-index: 11;
+}
+
+.report-card.is-resizing {
+  user-select: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+}
+
+/* Fullscreen mode */
+.report-card.is-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 3rem !important;
+  background: #fff !important;
+  overflow-y: auto !important;
+  box-shadow: none !important;
+  animation: fullscreen-reveal 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes fullscreen-reveal {
+  from { clip-path: circle(0% at 90% 10%); }
+  to { clip-path: circle(150% at 90% 10%); }
+}
+
+.report-card.is-fullscreen .btn-report-action {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--primary);
+  border: 1px solid var(--border);
 }
 
 @media (max-width: 640px) {
@@ -452,11 +795,13 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
 .report-inner-canvas {
   border: 2px solid #1e293b;
   border-radius: 20px;
-  padding: 2rem 1.5rem;
+  padding: 2rem 1rem;
   margin-top: 1rem;
-  min-height: 600px;
+  flex: 1; /* Take remaining height of report-card */
   height: auto;
-  overflow: visible;
+  overflow-y: auto; /* Allow internal scrolling if content is too tall for report-card */
+  overflow-x: hidden;
+  background: #fff;
 }
 
 @media (max-width: 640px) {
