@@ -207,45 +207,288 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
   z-index: 1001;
 }
 
-@media (max-width: 768px) {
+/* ── Report Header Row ── */
+.report-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.report-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+/* ── Mobile Bottom Bar ── */
+.mobile-bottom-bar {
+  display: none;
+}
+
+/* ── Mobile Data Drawer ── */
+.mobile-data-drawer {
+  display: none;
+}
+
+.mobile-drawer-overlay {
+  display: none;
+}
+
+/* ── Responsive: ≤ 768px (Portrait only, landscape acts as desktop) ── */
+@media (max-width: 768px) and (orientation: portrait) {
   .mobile-menu-toggle {
     display: block;
   }
-  
+
   .top-navbar {
     padding: 0.75rem 1rem;
     position: sticky;
     top: 0;
     z-index: 1000;
+    height: 60px;
   }
-  
+
+  /* Hide desktop sidebar on mobile — data lives in the drawer */
   .sidebar-left {
-    position: fixed;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: var(--bg-page);
-    z-index: 1000;
-    padding: 5rem 1.5rem 2rem;
-    transition: left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
+    display: none !important;
   }
-  
-  .sidebar-left.mobile-open {
-    left: 0;
+
+  .sidebar-divider {
+    display: none !important;
   }
-  
+
   .app-main {
     flex-direction: column;
-    padding: 1rem;
-    gap: 1.5rem;
+    padding: 0.75rem;
+    gap: 1rem;
+    /* space for sticky bottom bar */
+    padding-bottom: 80px;
   }
-  
+
   .content-right {
     padding: 0;
+    width: 100%;
+  }
+
+  /* Make report card full-width, no fixed width */
+  .report-card {
+    width: 100% !important;
+    min-width: 0 !important;
+    border-radius: 16px;
+    padding: 1.25rem 1rem;
+  }
+
+  .report-header-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+
+  .report-header-actions {
+    width: 100%;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  /* Hide desktop action buttons in report header on mobile (they're in bottom bar) */
+  .report-header-actions .btn-report-action:not(.btn-fullscreen-premium) {
+    display: none;
+  }
+
+  /* Fullscreen button stays visible */
+  .report-header-actions .btn-fullscreen-premium {
+    display: flex;
+  }
+
+  /* ── Mobile Bottom Bar ── */
+  .mobile-bottom-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-around;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
+    background: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(16px);
+    border-top: 1px solid var(--border);
+    padding: 0.5rem 0.75rem;
+    padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.07);
+    gap: 0.25rem;
+  }
+
+  .dark .mobile-bottom-bar {
+    background: rgba(15, 23, 42, 0.97);
+    border-top-color: rgba(255,255,255,0.08);
+  }
+
+  .mobile-bar-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.2rem;
+    min-width: 52px;
+    min-height: 52px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-dim);
+    cursor: pointer;
+    font-size: 0.65rem;
+    font-weight: 700;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+
+  .mobile-bar-btn:active {
+    transform: scale(0.93);
+  }
+
+  .mobile-bar-btn.active {
+    color: var(--primary);
+    background: rgba(139, 92, 246, 0.08);
+  }
+
+  .mobile-bar-btn-primary {
+    background: var(--primary-gradient) !important;
+    color: #fff !important;
+    box-shadow: 0 4px 12px rgba(139, 92, 246, 0.35);
+    border-radius: 16px;
+    min-width: 56px;
+    min-height: 56px;
+  }
+
+  /* ── Mobile Data Drawer (Bottom Sheet) ── */
+  .mobile-data-drawer {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1100;
+    background: var(--bg-card);
+    border-radius: 24px 24px 0 0;
+    box-shadow: 0 -8px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(100%);
+    transition: transform 0.38s cubic-bezier(0.4, 0, 0.2, 1);
+    max-height: 88vh;
+    overflow: hidden;
+  }
+
+  .mobile-data-drawer.open {
+    transform: translateY(0);
+  }
+
+  .mobile-drawer-handle {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1rem 1.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+    flex-shrink: 0;
+    gap: 1rem;
+  }
+
+  .drawer-pill {
+    width: 36px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 99px;
+    position: absolute;
+    top: 0.6rem;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .mobile-drawer-handle span {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--text-main);
+    font-family: 'Outfit', sans-serif;
+  }
+
+  .drawer-close-btn {
+    background: #f1f5f9;
+    border: none;
+    border-radius: 50%;
+    width: 34px;
+    height: 34px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--text-dim);
+    flex-shrink: 0;
+  }
+
+  .dark .drawer-close-btn {
+    background: rgba(255, 255, 255, 0.1);
+  }
+
+  .mobile-drawer-body {
+    overflow-y: auto;
+    padding: 1.5rem;
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    flex: 1;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .mobile-drawer-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 1099;
+    background: rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(3px);
+    animation: fadeIn 0.25s ease;
+  }
+
+  /* Footer padding so it's not covered by bottom bar */
+  .app-footer {
+    padding-bottom: calc(80px + 1rem) !important;
+  }
+}
+
+/* ── Responsive: ≤ 480px (Small Phones) ── */
+@media (max-width: 480px) {
+  .report-card {
+    border-radius: 12px;
+    padding: 1rem 0.75rem;
+  }
+
+  .report-inner-canvas {
+    padding: 1rem 0.5rem;
+    border-radius: 12px;
+  }
+
+  .app-name {
+    font-size: 1.1rem !important;
+  }
+
+  h1.report-title-center {
+    font-size: 1.35rem;
+  }
+
+  .btn-report-action span {
+    display: none;
+  }
+
+  .btn-report-action {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    justify-content: center;
   }
 }
 
@@ -2279,7 +2522,102 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
 }
 
 
+/* ── FORCE DESKTOP LAYOUT IN LANDSCAPE (Mini Desktop) ── */
+.app-wrapper.is-landscape .mobile-menu-toggle,
+.app-wrapper.is-landscape .mobile-bottom-bar,
+.app-wrapper.is-landscape .mobile-data-drawer,
+.app-wrapper.is-landscape .mobile-drawer-overlay {
+  display: none !important;
+}
 
+.app-wrapper.is-landscape .top-navbar {
+  display: flex !important;
+  position: sticky !important;
+  top: 0 !important;
+  height: 50px !important;
+  padding: 0.5rem 1rem !important;
+}
 
+.app-wrapper.is-landscape .miyamo-logo {
+  height: 34px !important;
+}
 
+.app-wrapper.is-landscape .app-main {
+  display: flex !important;
+  flex-direction: row !important;
+  padding: 0.5rem 1rem !important;
+  gap: 1rem !important;
+}
 
+.app-wrapper.is-landscape .sidebar-left {
+  display: flex !important;
+  position: relative !important;
+  left: 0 !important;
+  width: 320px !important;
+  height: auto !important;
+  padding: 0 !important;
+  flex-shrink: 0 !important;
+  background: transparent !important;
+  z-index: 1 !important;
+  overflow-y: visible !important;
+}
+
+.app-wrapper.is-landscape .sidebar-left.collapsed {
+  width: 0 !important;
+  padding: 0 !important;
+  opacity: 0 !important;
+}
+
+.app-wrapper.is-landscape .sidebar-divider {
+  display: block !important;
+}
+
+.app-wrapper.is-landscape .sidebar-toggle-line {
+  top: 50px !important;
+}
+
+.app-wrapper.is-landscape .content-right {
+  flex: 1 !important;
+  padding: 0 !important;
+  width: auto !important;
+}
+
+.app-wrapper.is-landscape .report-card {
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 1rem !important;
+  border-radius: 12px !important;
+}
+
+.app-wrapper.is-landscape .report-header-row {
+  flex-direction: row !important;
+  align-items: center !important;
+  margin-bottom: 1rem !important;
+}
+
+.app-wrapper.is-landscape .report-header-actions {
+  width: auto !important;
+}
+
+.app-wrapper.is-landscape .report-header-actions .btn-report-action {
+  display: flex !important;
+}
+
+.app-wrapper.is-landscape .btn-report-action span {
+  display: none !important;
+}
+
+.app-wrapper.is-landscape .btn-report-action {
+  width: 36px !important;
+  height: 36px !important;
+  padding: 0 !important;
+  justify-content: center !important;
+}
+
+.app-wrapper.is-landscape .report-inner-canvas {
+  padding: 1rem !important;
+}
+
+.app-wrapper.is-landscape .app-footer {
+  padding-bottom: 2rem !important;
+}

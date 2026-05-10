@@ -397,6 +397,22 @@ export default function App() {
   const [reportHeight, setReportHeight] = useState('auto');
   const [resizingType, setResizingType] = useState(null); // 'width', 'height', 'both'
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isDataDrawerOpen, setIsDataDrawerOpen] = useState(false);
+
+  // ── Orientation Detection (landscape = mini-desktop) ──
+  const [isLandscape, setIsLandscape] = useState(
+    () => window.matchMedia('(orientation: landscape) and (max-height: 600px)').matches
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia('(orientation: landscape) and (max-height: 600px)');
+    const handler = (e) => {
+      setIsLandscape(e.matches);
+      if (e.matches) setIsDataDrawerOpen(false); // close drawer on rotate
+    };
+    mq.addEventListener('change', handler);
+    return () => mq.removeEventListener('change', handler);
+  }, []);
 
   // Grid layout state
   const [gridLayouts, setGridLayouts] = useState([]);
@@ -690,7 +706,7 @@ export default function App() {
   }
 
   return (
-    <div className={`app-wrapper${dark ? ' dark' : ''}`}>
+    <div className={`app-wrapper${dark ? ' dark' : ''}${isLandscape ? ' is-landscape' : ''}`}>
       {appError && (
         <div className="error-toast" onClick={() => setAppError(null)}>⚠️ {appError} (Click to dismiss)</div>
       )}
@@ -825,7 +841,7 @@ export default function App() {
             ref={reportCardRef}
             style={!isFullscreen ? { width: `${reportWidth}px`, height: reportHeight === 'auto' ? 'auto' : `${reportHeight}px` } : {}}
           >
-            {/* Custom Resizer Handles */}
+            {/* Custom Resizer Handles - desktop only */}
             {!isFullscreen && (
               <>
                 <div className="report-resizer-right" onMouseDown={(e) => startResizing(e, 'width')} />
@@ -834,10 +850,10 @@ export default function App() {
               </>
             )}
 
-            <div className="flex justify-between items-center mb-8">
+            <div className="report-header-row">
               <h2 className="app-name">Visualisation Report</h2>
               
-              <div className="flex items-center gap-3">
+              <div className="report-header-actions">
                 {/* Premium Full Screen Button */}
                 <button 
                   className={`btn-report-action btn-fullscreen-premium ${isFullscreen ? 'is-active' : ''}`}
@@ -924,6 +940,93 @@ export default function App() {
         </section>
       </main>
       )}
+
+      {/* ── Mobile Data Drawer ── */}
+      {isDataDrawerOpen && (
+        <div className="mobile-drawer-overlay" onClick={() => setIsDataDrawerOpen(false)} />
+      )}
+      <div className={`mobile-data-drawer ${isDataDrawerOpen ? 'open' : ''}`}>
+        <div className="mobile-drawer-handle" onClick={() => setIsDataDrawerOpen(false)}>
+          <div className="drawer-pill" />
+          <span>Data Input</span>
+          <button className="drawer-close-btn" onClick={() => setIsDataDrawerOpen(false)}><X size={18} /></button>
+        </div>
+        <div className="mobile-drawer-body">
+          <div className="section-label"><Database size={12} /> Paste your data</div>
+          <div className="flex justify-between mb-4">
+            <span className="text-xs font-bold">CSV / Tabular Data</span>
+            <div className="flex gap-2">
+              <button className="btn btn-ghost" onClick={() => { setRawText(SAMPLE_CSV); processCSV(SAMPLE_CSV); setIsDataDrawerOpen(false); }}>
+                <Plus size={14} /> Sample
+              </button>
+              <button className="btn btn-danger-ghost" onClick={() => { setRawText(''); processCSV(''); }}>
+                <RotateCcw size={14} /> Clear
+              </button>
+            </div>
+          </div>
+          <textarea
+            className="textarea-sidebar"
+            placeholder="Paste CSV data here..."
+            value={rawText}
+            onChange={e => { setRawText(e.target.value); processCSV(e.target.value); }}
+            style={{ minHeight: '160px' }}
+          />
+          {hasData && (
+            <div style={{ marginTop: '1rem' }}>
+              <div className="section-label"><TableIcon size={12} /> Data Preview</div>
+              <DataTable headers={headers} rows={rows} columnMeta={columnMeta} onColumnTypeChange={handleColumnTypeChange} />
+            </div>
+          )}
+          <button
+            className="btn-lavender mobile-drawer-done"
+            onClick={() => setIsDataDrawerOpen(false)}
+            style={{ marginTop: '1.5rem', width: '100%', padding: '0.85rem', borderRadius: '12px', border: 'none', fontWeight: 700, fontSize: '0.95rem', cursor: 'pointer' }}
+          >
+            Done — View Report
+          </button>
+        </div>
+      </div>
+
+      {/* ── Mobile Sticky Bottom Bar ── */}
+      <div className="mobile-bottom-bar">
+        <button
+          className={`mobile-bar-btn ${isDataDrawerOpen ? 'active' : ''}`}
+          onClick={() => setIsDataDrawerOpen(!isDataDrawerOpen)}
+        >
+          <Database size={20} />
+          <span>Data</span>
+        </button>
+        <button
+          className={`mobile-bar-btn ${isEditMode ? 'active' : ''}`}
+          onClick={() => setIsEditMode(!isEditMode)}
+        >
+          <Edit3 size={20} />
+          <span>{isEditMode ? 'Done' : 'Edit'}</span>
+        </button>
+        {isEditMode && (
+          <button
+            className="mobile-bar-btn mobile-bar-btn-primary"
+            onClick={() => setIsAddVisualOpen(true)}
+          >
+            <Plus size={22} />
+            <span>Add</span>
+          </button>
+        )}
+        <button
+          className="mobile-bar-btn"
+          onClick={() => setIsDownloadOpen(true)}
+        >
+          <Download size={20} />
+          <span>Export</span>
+        </button>
+        <button
+          className="mobile-bar-btn"
+          onClick={() => { setDark(!dark); }}
+        >
+          {dark ? <Sun size={20} /> : <Moon size={20} />}
+          <span>Theme</span>
+        </button>
+      </div>
 
       <footer className="app-footer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '2rem', borderTop: '1px solid var(--border)' }}>
         <div className="footer-links" style={{ display: 'flex', gap: '1.5rem' }}>

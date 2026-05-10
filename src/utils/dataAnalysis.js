@@ -11,10 +11,15 @@ const DATE_PATTERNS = [
 export function detectColumnType(values) {
   const nonEmpty = values.filter((v) => v !== null && v !== undefined && String(v).trim() !== '');
   if (nonEmpty.length === 0) return 'text';
-  const asNumbers = nonEmpty.map((v) => Number(String(v).replace(/[$,%]/g, '').trim()));
-  if (asNumbers.every((n) => !isNaN(n))) return 'number';
-  const isDate = nonEmpty.every((v) => DATE_PATTERNS.some((p) => p.test(String(v).trim())));
-  if (isDate) return 'date';
+  
+  const total = nonEmpty.length;
+  
+  const validNumbers = nonEmpty.filter((v) => !isNaN(Number(String(v).replace(/[$,%]/g, '').trim())));
+  if (validNumbers.length / total >= 0.8) return 'number';
+  
+  const validDates = nonEmpty.filter((v) => DATE_PATTERNS.some((p) => p.test(String(v).trim())));
+  if (validDates.length / total >= 0.8) return 'date';
+  
   return 'text';
 }
 
