@@ -23,6 +23,9 @@ import SidebarEditor  from './components/SidebarEditor';
 
 import DownloadModal  from './components/DownloadModal';
 import AddVisualModal from './components/AddVisualModal';
+import AboutUs        from './components/AboutUs';
+import PrivacyPolicy  from './components/PrivacyPolicy';
+import ContactUs      from './components/ContactUs';
 
 import { analyzeColumns, buildManualChartData, fmt } from './utils/dataAnalysis';
 import { generateAIReport } from './utils/aiGenerator';
@@ -382,13 +385,16 @@ export default function App() {
   const [isAddVisualOpen, setIsAddVisualOpen] = useState(false);
   const [items,           setItems]           = useState([]);
   const [editingItem,     setEditingItem]     = useState(null);
+  const [isAboutOpen,     setIsAboutOpen]     = useState(false);
+  const [isPrivacyOpen,   setIsPrivacyOpen]   = useState(false);
+  const [currentPath,     setCurrentPath]     = useState(window.location.pathname);
   const [appError,        setAppError]        = useState(null);
   const [isExporting,     setIsExporting]     = useState(false);
   const [isAuthenticating, setIsAuthenticating] = useState(false);
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [reportWidth, setReportWidth] = useState(1100);
-  const [reportHeight, setReportHeight] = useState(800);
+  const [reportHeight, setReportHeight] = useState('auto');
   const [resizingType, setResizingType] = useState(null); // 'width', 'height', 'both'
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -421,6 +427,19 @@ export default function App() {
     document.addEventListener('fullscreenchange', handleFsChange);
     return () => document.removeEventListener('fullscreenchange', handleFsChange);
   }, []);
+
+  // ── Simple Routing ──
+  useEffect(() => {
+    const onPopState = () => setCurrentPath(window.location.pathname);
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  const navigateTo = (path) => {
+    window.history.pushState({}, '', path);
+    setCurrentPath(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // ── Manual Resizing Logic ──
   const startResizing = (e, type) => {
@@ -740,7 +759,14 @@ export default function App() {
       </header>
 
       {/* ── Main ── */}
-      <main className="app-main">
+      {currentPath === '/contact' ? (
+        <ContactUs />
+      ) : currentPath === '/about' ? (
+        <AboutUs onTryNow={() => navigateTo('/')} />
+      ) : currentPath === '/privacy' ? (
+        <PrivacyPolicy />
+      ) : (
+        <main className="app-main">
 
         {/* Left Sidebar */}
         <aside className={`sidebar-left ${isMobileMenuOpen ? 'mobile-open' : ''} ${!isSidebarVisible ? 'collapsed' : ''}`}>
@@ -797,7 +823,7 @@ export default function App() {
           <div 
             className={`report-card ${isFullscreen ? 'is-fullscreen' : ''} ${resizingType ? 'is-resizing' : ''}`} 
             ref={reportCardRef}
-            style={!isFullscreen ? { width: `${reportWidth}px`, height: `${reportHeight}px` } : {}}
+            style={!isFullscreen ? { width: `${reportWidth}px`, height: reportHeight === 'auto' ? 'auto' : `${reportHeight}px` } : {}}
           >
             {/* Custom Resizer Handles */}
             {!isFullscreen && (
@@ -897,9 +923,17 @@ export default function App() {
           </div>
         </section>
       </main>
+      )}
 
-      <footer className="app-footer">
-        Miyamo · 100% client-side · No servers, no cookies, no tracking
+      <footer className="app-footer" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1rem', padding: '2rem', borderTop: '1px solid var(--border)' }}>
+        <div className="footer-links" style={{ display: 'flex', gap: '1.5rem' }}>
+          <button onClick={() => navigateTo('/about')} className="footer-link-btn">About Us</button>
+          <button onClick={() => navigateTo('/privacy')} className="footer-link-btn">Privacy Policy</button>
+          <button onClick={() => navigateTo('/contact')} className="footer-link-btn">Contact Us</button>
+        </div>
+        <div style={{ fontSize: '0.85rem', color: 'var(--text-dim)' }}>
+          Miyamo · 100% client-side · No servers, no cookies, no tracking
+        </div>
       </footer>
 
       <DownloadModal 

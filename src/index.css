@@ -2254,6 +2254,30 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
   to { transform: rotate(360deg); }
 }
 
+/* ── Footer Link Buttons ── */
+.footer-link-btn {
+  background: transparent;
+  color: var(--text-dim);
+  border: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.6rem 1.25rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  text-decoration: none;
+}
+
+.footer-link-btn:hover {
+  color: var(--primary);
+  background: rgba(139, 92, 246, 0.08);
+  transform: translateY(-2px);
+}
+
+.dark .footer-link-btn:hover {
+  background: rgba(139, 92, 246, 0.15);
+}
+
 
 
 
