@@ -526,6 +526,7 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
 
 /* ── Sidebar Divider & Toggle ── */
 .sidebar-divider {
+  z-index: 101;
   width: 1px;
   background: var(--border);
   position: relative;
@@ -962,6 +963,8 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
 
 /* User resize handles */
 .report-resizer-right {
+  pointer-events: auto !important;
+  touch-action: none;
   position: absolute;
   right: -5px;
   top: 0;
@@ -2549,44 +2552,26 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
   gap: 1rem !important;
 }
 
+
 .app-wrapper.is-landscape .sidebar-left {
   display: flex !important;
   position: relative !important;
   left: 0 !important;
   width: 320px !important;
-  height: auto !important;
+  height: calc(100vh - 50px) !important;
   padding: 0 !important;
   flex-shrink: 0 !important;
   background: transparent !important;
   z-index: 1 !important;
-  overflow-y: visible !important;
-}
-
-.app-wrapper.is-landscape .sidebar-left.collapsed {
-  width: 0 !important;
-  padding: 0 !important;
-  opacity: 0 !important;
-}
-
-.app-wrapper.is-landscape .sidebar-divider {
-  display: block !important;
-}
-
-.app-wrapper.is-landscape .sidebar-toggle-line {
+  overflow-y: auto !important;
+  position: sticky !important;
   top: 50px !important;
 }
 
-.app-wrapper.is-landscape .content-right {
-  flex: 1 !important;
-  padding: 0 !important;
-  width: auto !important;
-}
 
-.app-wrapper.is-landscape .report-card {
-  width: 100% !important;
-  min-width: 0 !important;
-  padding: 1rem !important;
-  border-radius: 12px !important;
+
+.app-wrapper.is-landscape .sidebar-divider {
+  display: block !important;
 }
 
 .app-wrapper.is-landscape .report-header-row {
@@ -2621,3 +2606,179 @@ h3 { font-size: clamp(1.25rem, 3vw, 1.5rem); }
 .app-wrapper.is-landscape .app-footer {
   padding-bottom: 2rem !important;
 }
+
+/* --- MOBILE LANDSCAPE UX FIXES (OVERRIDE) --- */
+
+/* Fix 1: Hit area for sidebar toggle */
+.sidebar-divider::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -20px;
+  right: -20px;
+  z-index: -1;
+  pointer-events: auto;
+}
+
+.app-wrapper.is-landscape .sidebar-divider {
+  display: block !important;
+  pointer-events: auto !important;
+  z-index: 101 !important;
+}
+
+/* Fix 2: Touch-friendly resizing */
+.report-resizer-right, .report-resizer-bottom, .report-resizer-corner {
+  pointer-events: auto !important;
+  touch-action: none !important;
+  z-index: 100 !important;
+}
+
+.report-resizer-right { width: 16px !important; right: -8px !important; }
+.report-resizer-bottom { height: 16px !important; bottom: -8px !important; }
+.report-resizer-corner { width: 32px !important; height: 32px !important; right: -12px !important; bottom: -12px !important; }
+
+/* Fix 3: Fullscreen state fallback */
+.report-card.is-fullscreen {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  width: 100vw !important;
+  height: 100vh !important;
+  z-index: 9999 !important;
+  margin: 0 !important;
+  border-radius: 0 !important;
+  padding: 1rem !important;
+  background: var(--bg-card) !important;
+  overflow-y: auto !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+
+
+.app-wrapper.is-landscape .app-main {
+  display: flex !important;
+  flex-direction: row !important;
+  padding: 0 !important;
+  gap: 0 !important;
+  align-items: stretch !important;
+}
+
+.app-wrapper.is-landscape .content-right {
+  flex: 1 !important;
+  padding: 0.5rem !important;
+  overflow-x: hidden !important;
+}
+
+.app-wrapper.is-landscape .report-inner-canvas {
+  height: auto !important;
+  min-height: 400px;
+}
+
+
+/* Re-fix: Left sidebar landscape scroll and positioning */
+.app-wrapper.is-landscape .sidebar-left {
+  overflow-y: auto !important;
+  height: calc(100vh - 50px) !important;
+  position: sticky !important;
+  top: 50px !important;
+  display: flex !important;
+  flex-direction: column !important;
+}
+
+
+/* Fix: Mobile Landscape Report Scroll */
+.app-wrapper.is-landscape .content-right {
+  flex: 1 !important;
+  padding: 0 !important;
+  width: auto !important;
+  overflow-y: auto !important;
+  height: calc(100vh - 50px) !important;
+  -webkit-overflow-scrolling: touch;
+}
+
+.app-wrapper.is-landscape .report-card {
+  width: 100% !important;
+  min-width: 0 !important;
+  padding: 1rem !important;
+  border-radius: 12px !important;
+  height: auto !important;
+  min-height: min-content;
+}
+
+.app-wrapper.is-landscape .sidebar-toggle-line {
+  top: 50px !important;
+}
+
+
+
+/* Landscape UX Refinement: No blocking overlays */
+@media (orientation: landscape) {
+  .nav-center-banner, .status-pill {
+    display: none !important;
+    pointer-events: none !important;
+  }
+  .top-navbar {
+    z-index: 100 !important;
+  }
+}
+
+
+/* Restoration: Transparent Privacy Banner for Landscape */
+@media (orientation: landscape) {
+  .nav-center-banner {
+    display: flex !important;
+    pointer-events: none !important; /* Critical: allow clicks through to report */
+    max-height: 40px !important;
+    overflow: hidden !important;
+    opacity: 0.9;
+  }
+  
+  .privacy-pill-premium {
+    background: rgba(255, 255, 255, 0.2) !important;
+    border-color: rgba(139, 92, 246, 0.1) !important;
+    padding: 0.25rem 0.75rem !important;
+    transform: scale(0.9); /* Make it slightly smaller to fit better */
+  }
+
+  .privacy-pill-premium p {
+    font-size: 0.65rem !important;
+    color: var(--text-dim) !important;
+  }
+}
+
+
+/* Robust Sidebar Toggle for Landscape */
+.app-wrapper.is-landscape .sidebar-left {
+  width: 320px !important;
+  min-width: 320px !important;
+  transition: all 0.3s ease !important;
+}
+
+.app-wrapper.is-landscape .sidebar-left.collapsed {
+  width: 0 !important;
+  min-width: 0 !important;
+  flex: 0 0 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  opacity: 0 !important;
+  overflow: hidden !important;
+  pointer-events: none !important;
+}
+
+.app-wrapper.is-landscape .sidebar-divider {
+  display: block !important;
+  position: relative !important;
+  left: 0 !important;
+  transition: all 0.3s ease !important;
+}
+
+.app-wrapper.is-landscape .content-right {
+  flex: 1 !important;
+  width: auto !important;
+  transition: all 0.3s ease !important;
+}
+

@@ -426,13 +426,23 @@ export default function App() {
   const reportCardRef = useRef(null);
 
   const toggleFullscreen = () => {
-    if (!document.fullscreenElement) {
-      reportCardRef.current?.requestFullscreen?.().catch(err => {
-        console.error(`Error attempting to enable full-screen mode: ${err.message}`);
+    const elem = reportCardRef.current;
+    if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if (elem.webkitRequestFullscreen) {
+        elem.webkitRequestFullscreen();
+      } else {
+        // Force state fallback for iOS/Safari where API might be restricted
         setIsFullscreen(true);
-      });
+      }
     } else {
-      document.exitFullscreen();
+      if (document.exitFullscreen) {
+        document.exitFullscreen();
+      } else if (document.webkitExitFullscreen) {
+        document.webkitExitFullscreen();
+      }
+      setIsFullscreen(false);
     }
   };
 
@@ -461,12 +471,15 @@ export default function App() {
   const startResizing = (e, type) => {
     e.preventDefault();
     setResizingType(type);
+    if (e.target.setPointerCapture) {
+      e.target.setPointerCapture(e.pointerId);
+    }
   };
 
   useEffect(() => {
     if (!resizingType) return;
 
-    const onMouseMove = (e) => {
+    const onPointerMove = (e) => {
       if (resizingType === 'width' || resizingType === 'both') {
         const newWidth = e.clientX - reportCardRef.current.getBoundingClientRect().left;
         setReportWidth(Math.max(600, newWidth));
@@ -477,13 +490,15 @@ export default function App() {
       }
     };
 
-    const onMouseUp = () => setResizingType(null);
+    const onPointerUp = () => setResizingType(null);
 
-    window.addEventListener('mousemove', onMouseMove);
-    window.addEventListener('mouseup', onMouseUp);
+    window.addEventListener('pointermove', onPointerMove);
+    window.addEventListener('pointerup', onPointerUp);
+    window.addEventListener('pointercancel', onPointerUp);
     return () => {
-      window.removeEventListener('mousemove', onMouseMove);
-      window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('pointermove', onPointerMove);
+      window.removeEventListener('pointerup', onPointerUp);
+      window.removeEventListener('pointercancel', onPointerUp);
     };
   }, [resizingType]);
 
@@ -844,9 +859,9 @@ export default function App() {
             {/* Custom Resizer Handles - desktop only */}
             {!isFullscreen && (
               <>
-                <div className="report-resizer-right" onMouseDown={(e) => startResizing(e, 'width')} />
-                <div className="report-resizer-bottom" onMouseDown={(e) => startResizing(e, 'height')} />
-                <div className="report-resizer-corner" onMouseDown={(e) => startResizing(e, 'both')} />
+                <div className="report-resizer-right" onPointerDown={(e) => startResizing(e, 'width')} />
+                <div className="report-resizer-bottom" onPointerDown={(e) => startResizing(e, 'height')} />
+                <div className="report-resizer-corner" onPointerDown={(e) => startResizing(e, 'both')} />
               </>
             )}
 
@@ -917,6 +932,7 @@ export default function App() {
                     compactType="vertical"
                     onLayoutChange={(layout) => handleLayoutChange(layout)}
                     useCSSTransforms={!isExporting}
+                    cancel=".icon-btn, .inline-title-input, .download-menu, .premium-select-field"
                   >
                     {items.map(item => (
                       <div key={item.id} className={item.type === 'metric' ? 'kpi-grid-item' : ''}>
